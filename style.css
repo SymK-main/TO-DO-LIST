@@ -72,7 +72,7 @@ body {
     border: 2px solid var(--color-memo-border);
 }
 
-.memo-pad__VolumR {
+.memo-pad__VolumeR {
     position: absolute;
     top: 0;
     right: 0;
@@ -92,7 +92,7 @@ body {
     transform: skewY(45deg);
 }
 
-.memo-pad__VolumB {
+.memo-pad__VolumeB {
     position: absolute;
     left: 0;
     bottom: 0;

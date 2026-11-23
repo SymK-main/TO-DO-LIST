@@ -61,17 +61,17 @@
                 </button>
             </div>
 
-            <div class = "memo-pad__VolumR" aria-hidden = "true"></div>
-            <div class = "memo-pad__VolumB" aria-hidden = "true"></div>
+            <div class = "memo-pad__VolumeR" aria-hidden = "true"></div>
+            <div class = "memo-pad__VolumeB" aria-hidden = "true"></div>
         </section>
 
         <section class = "memo-sheet" id = "memoSheet" aria-label = "개별 일정 관리">
             <form class = "memo-form" id = "memoForm">
                 <div class = "memo-form__row">
-                    <label for = "todoTitle" class = "memo-form__label">제목 :</label>
+                    <label for = "taskTitle" class = "memo-form__label">제목 :</label>
                     <input
                         type = "text"
-                        id = "todoTitle"
+                        id = "taskTitle"
                         class = "memo-form__input"
                         placeholder = "할 일을 입력해주세요."
                         maxlength = "30"
@@ -95,9 +95,9 @@
                 </div>
 
                 <div class = "memo-form__content-wrap">
-                    <label for = "todoContent" class = "memo-form__label memo-form__label--content">내용: </label>
+                    <label for = "taskContent" class = "memo-form__label memo-form__label--content">내용: </label>
                     <textarea
-                        id = "todoContent"
+                        id = "taskContent"
                         class = "memo-form__textarea"
                         rows = "6"
                         maxlength = "140"
@@ -136,5 +136,6 @@
             </button>
         </section>
     </main>
+    <script src = "script.js"></script>
 </body>
 </html>
