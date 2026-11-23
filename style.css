@@ -1,11 +1,15 @@
 :root {
     /* 1계층: 기본 색상 토큰 */
+    --palette-white: #ffffff;
     --palette-bg: #f5f6f8;
     --palette-paper: #dcdcdc;
     --palette-paper-dark: #bcbcbc;
     --palette-ink: #111827;
+    --palette-muted: #8a8f98;
     --palette-border: #13293d;
     --palette-line: #185c7e;
+    --palette-success: #1b8a4b;
+    --palette-danger: #c63636;
 
     /* 2계층: 역할(시맨틱) 토큰 */
     --color-page-bg: var(--palette-bg);
@@ -14,6 +18,7 @@
     --color-memo-border: var(--palette-border);
     --color-memo-line: var(--palette-line);
     --color-text-main: var(--palette-ink);
+    --color-text-muted: var(--palette-muted);
 
     --pad-thickness: 34px;
 }
@@ -35,14 +40,23 @@ body {
     color: var(--color-text-main);
 }
 
+.is-hidden {
+    display: none !important;
+}
+
 .board {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    gap: 48px;
+    flex-wrap: wrap;
     width: 100%;
+    max-width: 1120px;
 }
 
-/* 3D 떡 메모지 패드 */
+/* ===========================
+   1. 3D 떡 메모지 패드
+   =========================== */
 .memo-pad {
     position: relative;
     width: 500px;
@@ -53,7 +67,7 @@ body {
 .memo-pad__head {
     position: relative;
     z-index: 2;
-    padding: 32px 34px 40px;
+    padding: 32px 34px 54px;
     background-color: var(--color-memo-bg);
     border: 2px solid var(--color-memo-border);
 }
@@ -125,11 +139,215 @@ body {
     flex-shrink: 0;
     width: 26px;
     height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: 2px solid var(--color-memo-border);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    cursor: pointer;
 }
 
 .memo-list__line {
     flex: 1;
     min-height: 28px;
+    padding-bottom: 3px;
     border-bottom: 2px solid var(--color-memo-line);
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.memo-list__item--done .memo-list__line,
+.memo-list__item--expired .memo-list__line {
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+}
+
+.memo-pad__notice {
+    margin-top: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--palette-danger);
+    text-align: center;
+}
+
+/* ===========================
+   우측 하단 접힌 모서리 (삭제 버튼 2종)
+   =========================== */
+.fold-corner {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.fold-corner svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.fold-corner--pad {
+    width: 72px;
+    height: 72px;
+}
+
+.fold-corner--memo {
+    width: 110px;
+    height: 110px;
+}
+
+.fold-corner__back {
+    fill: var(--color-memo-bg);
+}
+
+.fold-corner__front {
+    fill: var(--color-memo-side);
+}
+
+.fold-corner__stroke {
+    stroke: var(--color-memo-border);
+    stroke-width: 2.5;
+}
+
+.fold-corner:hover {
+    transform: scale(1.04);
+    transform-origin: bottom right;
+}
+
+/* ===========================
+   2. 오른쪽: 개별 일정 관리 패널 (.memo-sheet)
+   =========================== */
+.memo-sheet {
+    position: relative;
+    width: 480px;
+    padding: 42px 36px 124px;
+    background-color: var(--color-memo-bg);
+    border: 2px solid var(--color-memo-border);
+    box-shadow: 6px 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.memo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.memo-form__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--color-memo-line);
+}
+
+.memo-form__label {
+    flex-shrink: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.memo-form__input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: var(--color-text-main);
+}
+
+.date-selects {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.date-selects__item {
+    min-width: 46px;
+    height: 28px;
+    padding: 2px 6px;
+    background-color: rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--color-memo-line);
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#dueHour {
+    margin-left: 10px;
+}
+
+/* 내용: 같은 줄 바로 옆부터 입력되도록 text-indent 적용 (6줄) */
+.memo-form__content-wrap {
+    position: relative;
+}
+
+.memo-form__label--content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    line-height: 36px;
+    pointer-events: none;
+}
+
+.memo-form__textarea {
+    width: 100%;
+    text-indent: 52px;
+    overflow: hidden;
+    background: repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 34px,
+            var(--color-memo-line) 34px,
+            var(--color-memo-line) 36px
+    );
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 36px;
+    color: var(--color-text-main);
+}
+
+/* 왼쪽 아래 클릭 가능한 달성 스위치 (과녁 아이콘) */
+.memo-sheet__target {
+    position: absolute;
+    left: 32px;
+    bottom: 20px;
+    width: 88px;
+    height: 88px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--palette-paper-dark);
+    cursor: pointer;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.memo-sheet__target svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.memo-sheet__target:hover {
+    transform: scale(1.06);
+}
+
+.memo-sheet__target--done {
+    color: var(--palette-success);
+}
+
+.memo-sheet__target--expired {
+    color: var(--palette-danger);
 }

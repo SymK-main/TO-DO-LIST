@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name = "viewport" content="width = device-width, initial-scale =1.0">
+    <meta name = "viewport" content="width = device-width, initial-scale = 1.0">
     <title>TO-DO LIST</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel = "stylesheet" href = "style.css">
 </head>
 <body>
     <main class = "board">
@@ -12,40 +12,128 @@
             <div class = "memo-pad__head">
                 <h1 class = "memo-pad__title"> TO-DO LIST </h1>
 
-                <ul class = "memo-list">
-                    <li class = "memo-list__item">
-                        <span class = "memo-list__checkbox" aria-hidden="true"> </span>
+                <ul class = "memo-list" id = "mainMemoList">
+                    <li class = "memo-list__item" data-index = "0">
+                        <span class = "memo-list__checkbox" aria-hidden = "true"> </span>
                         <span class = "memo-list__line"></span>
                     </li>
-                    <li class = "memo-list__item">
-                        <span class = "memo-list__checkbox" aria-hidden="true"> </span>
+                    <li class = "memo-list__item" data-index = "1">
+                        <span class = "memo-list__checkbox" aria-hidden = "true"> </span>
                         <span class = "memo-list__line"></span>
                     </li>
-                    <li class = "memo-list__item">
-                        <span class = "memo-list__checkbox" aria-hidden="true"> </span>
+                    <li class = "memo-list__item" data-index = "2">
+                        <span class = "memo-list__checkbox" aria-hidden = "true"> </span>
                         <span class = "memo-list__line"></span>
                     </li>
-                    <li class = "memo-list__item">
-                        <span class = "memo-list__checkbox" aria-hidden="true"> </span>
+                    <li class = "memo-list__item" data-index = "3">
+                        <span class = "memo-list__checkbox" aria-hidden = "true"> </span>
                         <span class = "memo-list__line"></span>
                     </li>
-                    <li class = "memo-list__item">
-                        <span class = "memo-list__checkbox" aria-hidden="true"> </span>
+                    <li class = "memo-list__item" data-index = "4">
+                        <span class = "memo-list__checkbox" aria-hidden = "true"> </span>
                         <span class = "memo-list__line"></span>
                     </li>
-                    <li class = "memo-list__item">
-                        <span class = "memo-list__checkbox" aria-hidden="true"> </span>
+                    <li class = "memo-list__item" data-index = "5">
+                        <span class = "memo-list__checkbox" aria-hidden = "true"> </span>
                         <span class = "memo-list__line"></span>
                     </li>
-                    <li class = "memo-list__item">
-                        <span class = "memo-list__checkbox" aria-hidden="true"> </span>
+                    <li class = "memo-list__item" data-index = "6">
+                        <span class = "memo-list__checkbox" aria-hidden = "true"> </span>
                         <span class = "memo-list__line"></span>
                     </li>
                 </ul>
+                <p class = "memo-pad__notice is-hidden" id = "limitNotice" role = "status" >
+                    최대 등록 가능한 일정의 개수를 초과했습니다!
+                </p>
+
+                <button
+                    type = "button"
+                    class = "fold-corner fold-corner--pad"
+                    id = "clearAllBtn"
+                    title = "초기화"
+                    aria-label = "초기화"
+                >
+                    <svg viewBox = "0 0 72 72" aria-hidden = "true">
+                        <polygon points = "72,0 72,72 0,72" class = "fold-corner__back"/>
+                        <polygon points = "0,0 72,0 0,72" class = "fold-corner__front"/>
+                        <polyline points = "0,72 0,0 72,0 0,72" fill = "none" class = "fold-corner__stroke"/>
+                    </svg>
+                </button>
             </div>
 
-            <div class="memo-pad__VolumR" aria-hidden = "true"></div>
-            <div class = "memo-pad__VolumB" aria-hidden="true"></div>
+            <div class = "memo-pad__VolumR" aria-hidden = "true"></div>
+            <div class = "memo-pad__VolumB" aria-hidden = "true"></div>
+        </section>
+
+        <section class = "memo-sheet" id = "memoSheet" aria-label = "개별 일정 관리">
+            <form class = "memo-form" id = "memoForm">
+                <div class = "memo-form__row">
+                    <label for = "todoTitle" class = "memo-form__label">제목 :</label>
+                    <input
+                        type = "text"
+                        id = "todoTitle"
+                        class = "memo-form__input"
+                        placeholder = "할 일을 입력해주세요."
+                        maxlength = "30"
+                    >
+                </div>
+
+                <div class = "memo-form__row">
+                    <span class = "memo-form__label">기한 :</span>
+                    <div class = "date-selects">
+                        <select id = "dueYear" class = "date-selects__item" aria-label = "연"></select>
+                        <span></span>
+                        <select id = "dueMonth" class = "date-selects__item" aria-label = "월"></select>
+                        <span></span>
+                        <select id = "dueDay" class = "date-selects__item" aria-label = "일"></select>
+                        <span></span>
+                        <select id = "dueHour" class = "date-selects__item" aria-label = "시"></select>
+                        <span></span>
+                        <select id = "dueMinute" class = "date-selects__item" aria-label = "분"></select>
+                        <span></span>
+                    </div>
+                </div>
+
+                <div class = "memo-form__content-wrap">
+                    <label for = "todoContent" class = "memo-form__label memo-form__label--content">내용: </label>
+                    <textarea
+                        id = "todoContent"
+                        class = "memo-form__textarea"
+                        rows = "6"
+                        maxlength = "140"
+                        placeholder = "자세한 상세 내용을 기록해 주세요."
+                    ></textarea>
+                </div>
+            </form>
+
+            <button
+                type = "button"
+                class = "memo-sheet__target"
+                id = "memoTargetBtn"
+                title = "달성 여부"
+                aria-label = "달성 여부"
+            >
+                <svg viewBox = "0 0 64 64" aria-hidden = "true">
+                    <circle cx = "28" cy = "36" r = "20" fill = "none" stroke = "currentColor" stroke-width = "2.5"/>
+                    <circle cx = "28" cy = "36" r = "12" fill = "none" stroke = "currentColor" stroke-width = "2.5"/>
+                    <circle cx = "28" cy = "36" r = "4" fill = "none" stroke = "currentColor" stroke-width = "2.5"/>
+                    <line x1 = "28" y1 = "36" x2 = "52" y2 = "12" stroke = "currentColor" stroke-width = "2.5"/>
+                    <polyline points = "42,12 52,12 52,22" fill = "none" stroke = "currentColor" stroke-width = "2.5"/>
+                </svg>
+            </button>
+
+            <button
+                type = "button"
+                class = "fold-corner fold-corner--memo"
+                id = "deleteItemBtn"
+                title = "일정 삭제"
+                aria-label = "일정 삭제"
+            >
+                <svg viewBox = "0 0 110 110" aria-hidden= "true">
+                    <polygon points = "110,0 110,110 0,110" class = "fold-corner__front"/>
+                    <line x1 = "0" y1 = "110" x2 = "110" y2 = "0" class = "fold-corner__stroke" />
+                </svg>
+            </button>
         </section>
     </main>
 </body>
