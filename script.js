@@ -64,10 +64,43 @@ function initDataSelects(){
 
 initDataSelects();
 
+function formatDate(date){
+    const year = elements.dueYear.value;
+    const month = String(elements.dueMonth.value).padStart(2,"0");
+    const day = String(elements.dueDay.value).padStart(2,"0");
+    const hour = String(elements.dueHour.value).padStart(2,"0");
+    const minute = String(elements.dueMinute.value).padStart(2,"0");
+
+    return `${year}-${month}-${day}T${hour}:${minute}`;
+}
+
+function formatDueShort(dueDate){
+    const [date, time] = dueDate.split('T');
+    const [year, month, day] = date.split('-');
+    return `~${year.slice(2)}/${month}/${day} ${time}`
+}
+
+function renderTasks(){
+    const items = elements.mainMemoList.querySelectorAll(".memo-list__item");
+
+    items.forEach((item, index) => {
+        const task = state.tasks[index];
+        const line = item.querySelector(".memo-list__line");
+
+        if(task) {
+            line.textContent = `${formatDueShort(task.dueDate)} ${task.title}`;
+        }else {
+            line.textContent = "";
+        }
+    });
+}
+
+
 function render(){
     const isSheetOpen = state.mode !== "CLOSED";
     elements.memoSheet.classList.toggle("is-hidden", !isSheetOpen);
     elements.clearAllBtn.classList.toggle("is-hidden", state.tasks.length === 0);
+    renderTasks();
 }
 
 function openCreateSheet(){
@@ -83,6 +116,22 @@ function openCreateSheet(){
 
     render();
     elements.taskTitle.focus();
+}
+
+function saveNewTask(){
+    const title = elements.taskTitle.value.trim();
+    if (!title) return;
+
+    const newTask = {
+        id: Date.now(),
+        title,
+        dueDate: formatDate(),
+        content: elements.taskContent.value.trim(),
+        completed: false,
+    }
+
+    state.tasks.push(newTask);
+    saveTask();
 }
 
 elements.mainMemoList.addEventListener("click", (e) => {
@@ -102,6 +151,9 @@ elements.memoPad.addEventListener("click", (e) => {
     if (e.target.closest("#clearAllBtn")) return;
 
     if(state.mode !== "CLOSED"){
+        if(state.mode === "CREATE"){
+            saveNewTask();
+        }
         state.mode = "CLOSED";
         state.selectedId = null;
         render();
