@@ -1,3 +1,4 @@
+// const, dom, status
 const STORAGE_KEY = "todo_memo_v1";
 const MAX_Tasks = 7;
 
@@ -19,31 +20,39 @@ const elements = {
     deleteItemBtn: document.getElementById('deleteItemBtn'),
 };
 
+
 const state = {
     tasks: loadTasks(),
     mode: "CLOSED",
     selectedId: null,
 };
 
-function loadTasks() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-    } catch{
-        return [];
-    }
+
+// Randering
+function renderTasks(){
+    const items = elements.mainMemoList.querySelectorAll(".memo-list__item");
+
+    items.forEach((item, index) => {
+        const task = state.tasks[index];
+        const line = item.querySelector(".memo-list__line");
+
+        if(task) {
+            line.textContent = `${formatDueShort(task.dueDate)} ${task.title}`;
+        }else {
+            line.textContent = "";
+        }
+    });
 }
 
-function saveTask() {
-    try{
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
-    } catch{
-
-    }
+function render(){
+    const isSheetOpen = state.mode !== "CLOSED";
+    elements.memoSheet.classList.toggle("is-hidden", !isSheetOpen);
+    elements.clearAllBtn.classList.toggle("is-hidden", state.tasks.length === 0);
+    renderTasks();
 }
 
-//drop box setting
+
+// drop box setting and due management
 function fillSelect(selectEl, start, end, term = 1){
     selectEl.innerHTML = "";
     for(let i = start; i <= end; i+= term){
@@ -62,8 +71,6 @@ function initDataSelects(){
     fillSelect(elements.dueMinute,0, 59 , 5);
 }
 
-initDataSelects();
-
 function formatDate(date){
     const year = elements.dueYear.value;
     const month = String(elements.dueMonth.value).padStart(2,"0");
@@ -80,29 +87,40 @@ function formatDueShort(dueDate){
     return `~${year.slice(2)}/${month}/${day} ${time}`
 }
 
-function renderTasks(){
-    const items = elements.mainMemoList.querySelectorAll(".memo-list__item");
+function setDueDate(dueDate){
+    const [date, time] = dueDate.split("T");
+    const [year, month, day] = date.split('-');
+    const [hour, minute] = time.split(':');
 
-    items.forEach((item, index) => {
-        const task = state.tasks[index];
-        const line = item.querySelector(".memo-list__line");
-
-        if(task) {
-            line.textContent = `${formatDueShort(task.dueDate)} ${task.title}`;
-        }else {
-            line.textContent = "";
-        }
-    });
+    elements.dueYear.value = String(Number(year));
+    elements.dueMonth.value = String(Number(month));
+    elements.dueDay.value = String(Number(day));
+    elements.dueHour.value = String(Number(hour));
+    elements.dueMinute.value = String(Number(minute));
 }
 
 
-function render(){
-    const isSheetOpen = state.mode !== "CLOSED";
-    elements.memoSheet.classList.toggle("is-hidden", !isSheetOpen);
-    elements.clearAllBtn.classList.toggle("is-hidden", state.tasks.length === 0);
-    renderTasks();
+// data save/load
+function loadTasks() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch{
+        return [];
+    }
 }
 
+function saveTask() {
+    try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
+    } catch{
+
+    }
+}
+
+
+// open/save/edit
 function openCreateSheet(){
     if (state.tasks.length >= MAX_Tasks){
         elements.limitNotice.classList.remove("is-hidden");
@@ -116,6 +134,17 @@ function openCreateSheet(){
 
     render();
     elements.taskTitle.focus();
+}
+
+function openDetailTask(task){
+    state.mode = "DETAIL";
+    state.selectedId = task.id;
+
+    elements.taskTitle.value = task.title;
+    elements.taskContent.value = task.content;
+    setDueDate(task.dueDate);
+
+    render();
 }
 
 function saveNewTask(){
@@ -134,6 +163,21 @@ function saveNewTask(){
     saveTask();
 }
 
+function updateTask(){
+    const target = state.tasks.find((t) => t.id === state.selectedId);
+    if (!target) return;
+
+    const title = elements.taskTitle.value.trim();
+    if (title){
+        target.title = title;
+    }
+    target.dueDate = formatDate();
+    target.content = elements.taskContent.value.trim();
+
+    saveTask()
+}
+
+// event trigger
 elements.mainMemoList.addEventListener("click", (e) => {
     const item = e.target.closest(".memo-list__item");
     if (!item) return;
@@ -141,23 +185,29 @@ elements.mainMemoList.addEventListener("click", (e) => {
     const index = Number(item.dataset.index);
     const existingTask = state.tasks[index];
 
-    if (!existingTask) {
-        openCreateSheet();
+    if (existingTask) {
+        openDetailTask(existingTask);
+    } else{
+        openCreateSheet(existingTask);
     }
 });
 
 elements.memoPad.addEventListener("click", (e) => {
-    if(e.target.closest(".memo-list__item")) return;
+    if (e.target.closest(".memo-list__item")) return;
     if (e.target.closest("#clearAllBtn")) return;
 
     if(state.mode !== "CLOSED"){
         if(state.mode === "CREATE"){
             saveNewTask();
+        } else if(state.mode === "DETAIL") {
+            updateTask();
         }
         state.mode = "CLOSED";
         state.selectedId = null;
         render();
     }
-})
+});
 
+// main
+initDataSelects();
 render();
