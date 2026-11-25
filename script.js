@@ -25,7 +25,12 @@ const state = {
     tasks: loadTasks(),
     mode: "CLOSED",
     selectedId: null,
+    draftCompleted: false,
 };
+
+function isExpired(task){
+    return !task.completed && new Date(task.dueDate) < new Date();
+}
 
 
 // Randering
@@ -34,21 +39,61 @@ function renderTasks(){
 
     items.forEach((item, index) => {
         const task = state.tasks[index];
+        const checkbox = item.querySelector(".memo-list__checkbox");
         const line = item.querySelector(".memo-list__line");
 
-        if(task) {
-            line.textContent = `${formatDueShort(task.dueDate)} ${task.title}`;
-        }else {
+        item.classList.remove("memo-list__item--done", "memo-list__item--expired");
+
+        if (!task){
+            checkbox.textContent = "";
             line.textContent = "";
+            return;
+        }
+
+        line.textContent = `${formatDueShort(task.dueDate)} ${task.title}`;
+
+        if(task.completed) {
+            checkbox.textContent = "\u2713";
+            item.classList.add("memo-list__item--done");
+        } else if (isExpired(task)){
+            checkbox.textContent = "";
+            item.classList.add("memo-list__item--expired");
+        } else{
+            checkbox.textContent = "";
         }
     });
 }
+function renderTargetStatus(){
+    const targetBtn = elements.memoTargetBin;
+    targetBtn.classList.remove("memo-sheet__target--done", "memo-sheet__target--expired");
+
+    if (state.mode === "CREATE"){
+        if (state.draftCompleted){
+            targetBtn.classList.add("memo-sheet__target--done");
+        }
+        return;
+    }
+
+    const currentTask = state.tasks.find((t) => t.id === state.selectedId);
+    if (!currentTask) return;
+
+    if (currentTask.completed){
+        targetBtn.classList.add("memo-sheet__target--done");
+    } else if (isExpired(currentTask)){
+        targetBtn.classList.add("memo-sheet__target--expired");
+    }
+}
+
 
 function render(){
     const isSheetOpen = state.mode !== "CLOSED";
     elements.memoSheet.classList.toggle("is-hidden", !isSheetOpen);
     elements.clearAllBtn.classList.toggle("is-hidden", state.tasks.length === 0);
     renderTasks();
+
+    if (isSheetOpen){
+        renderTargetStatus();
+    }
 }
 
 
@@ -128,6 +173,7 @@ function openCreateSheet(){
     }
     state.mode = "CREATE";
     state.selectedId = null;
+    state.draftCompleted = false;
 
     elements.taskTitle.value = "";
     elements.taskContent.value = "";
@@ -156,7 +202,7 @@ function saveNewTask(){
         title,
         dueDate: formatDate(),
         content: elements.taskContent.value.trim(),
-        completed: false,
+        completed: state.draftCompleted,
     }
 
     state.tasks.push(newTask);
@@ -185,9 +231,17 @@ elements.mainMemoList.addEventListener("click", (e) => {
     const index = Number(item.dataset.index);
     const existingTask = state.tasks[index];
 
+    if (e.target.closest(".memo-list__checkbox")){
+        if (existingTask){
+            existingTask.completed = !existingTask.completed;
+            saveTask();
+            render();
+        }
+        return;
+    }
     if (existingTask) {
         openDetailTask(existingTask);
-    } else{
+    } else {
         openCreateSheet(existingTask);
     }
 });
@@ -207,6 +261,21 @@ elements.memoPad.addEventListener("click", (e) => {
         render();
     }
 });
+
+elements.memoTargetBin.addEventListener("click", (e) => {
+    if (state.mode === "CREATE"){
+        state.draftCompleted = !state.draftCompleted;
+        renderTargetStatus();
+        return;
+    }
+
+    const currentTask = state.tasks.find((t) => t.id === state.selectedId);
+    if (!currentTask) return;
+
+    currentTask.completed = !currentTask.completed;
+    saveTask();
+    render();
+})
 
 // main
 initDataSelects();
