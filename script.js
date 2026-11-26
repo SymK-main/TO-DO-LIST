@@ -1,6 +1,6 @@
 // const, dom, status
 const STORAGE_KEY = "todo_memo_v1";
-const MAX_Tasks = 7;
+const MAX_TASKS = 7;
 
 //data structure
 const elements = {
@@ -33,7 +33,7 @@ function isExpired(task){
 }
 
 
-// Randering
+// Rendering
 function renderTasks(){
     const items = elements.mainMemoList.querySelectorAll(".memo-list__item");
 
@@ -100,7 +100,7 @@ function render(){
 // drop box setting and due management
 function fillSelect(selectEl, start, end, term = 1){
     selectEl.innerHTML = "";
-    for(let i = start; i <= end; i+= term){
+    for(let i = start; i <= end; i += term){
         const option = document.createElement("option");
         option.value = String(i);
         option.textContent = String(i);
@@ -116,7 +116,7 @@ function initDataSelects(){
     fillSelect(elements.dueMinute,0, 59 , 5);
 }
 
-function formatDate(date){
+function formatDate(){
     const year = elements.dueYear.value;
     const month = String(elements.dueMonth.value).padStart(2,"0");
     const day = String(elements.dueDay.value).padStart(2,"0");
@@ -165,9 +165,15 @@ function saveTask() {
 }
 
 
-// open/save/edit
+// open/save/edit/delete
+function closeSheet(){
+    state.mode = "CLOSED";
+    state.selectedId = null;
+    render();
+}
+
 function openCreateSheet(){
-    if (state.tasks.length >= MAX_Tasks){
+    if (state.tasks.length >= MAX_TASKS){
         elements.limitNotice.classList.remove("is-hidden");
         return;
     }
@@ -203,7 +209,7 @@ function saveNewTask(){
         dueDate: formatDate(),
         content: elements.taskContent.value.trim(),
         completed: state.draftCompleted,
-    }
+    };
 
     state.tasks.push(newTask);
     saveTask();
@@ -222,6 +228,20 @@ function updateTask(){
 
     saveTask()
 }
+
+function deleteTask(targetId = null){
+    if (targetId !== null){
+        state.tasks = state.tasks.filter((t) => t.id !== targetId);
+    } else{
+        state.tasks = [];
+    }
+
+    elements.limitNotice.classList.add("is-hidden");
+    saveTask();
+    render();
+    closeSheet();
+}
+
 
 // event trigger
 elements.mainMemoList.addEventListener("click", (e) => {
@@ -255,10 +275,7 @@ elements.memoPad.addEventListener("click", (e) => {
             saveNewTask();
         } else if(state.mode === "DETAIL") {
             updateTask();
-        }
-        state.mode = "CLOSED";
-        state.selectedId = null;
-        render();
+        }closeSheet();
     }
 });
 
@@ -275,7 +292,21 @@ elements.memoTargetBin.addEventListener("click", (e) => {
     currentTask.completed = !currentTask.completed;
     saveTask();
     render();
+});
+
+elements.deleteItemBtn.addEventListener("click", (e) => {
+    if (state.mode === "DETAIL" && state.selectedId !== null) {
+        deleteTask(state.selectedId);
+        return;
+    }
+    closeSheet();
+});
+
+elements.clearAllBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    deleteTask();
 })
+
 
 // main
 initDataSelects();
