@@ -5,7 +5,7 @@ const MAX_TASKS = 7;
 //data structure
 const elements = {
     memoPad: document.querySelector('.memo-pad'),
-    mainMemoList: document.getElementById('mainMemoList'),
+    toDoList: document.getElementById('toDoList'),
     limitNotice: document.getElementById('limitNotice'),
     clearAllBtn: document.getElementById('clearAllBtn'),
     memoSheet: document.getElementById('memoSheet'),
@@ -35,7 +35,7 @@ function isExpired(task){
 
 // Rendering
 function renderTasks(){
-    const items = elements.mainMemoList.querySelectorAll(".memo-list__item");
+    const items = elements.toDoList.querySelectorAll(".memo-list__item");
 
     items.forEach((item, index) => {
         const task = state.tasks[index];
@@ -244,7 +244,7 @@ function deleteTask(targetId = null){
 
 
 // event trigger
-elements.mainMemoList.addEventListener("click", (e) => {
+elements.toDoList.addEventListener("click", (e) => {
     const item = e.target.closest(".memo-list__item");
     if (!item) return;
 
